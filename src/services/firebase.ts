@@ -1,10 +1,8 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
-import { initializeAuth, connectAuthEmulator } from 'firebase/auth';
+import { getAuth, initializeAuth, connectAuthEmulator } from 'firebase/auth';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
-// @ts-ignore — valid subpath in firebase v9+
-import { getReactNativePersistence } from '@firebase/auth/react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY ?? 'demo-key',
@@ -18,9 +16,20 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
 export const db = getFirestore(app);
-export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
+
+// Web uses localStorage-based persistence; native uses AsyncStorage
+let _auth: ReturnType<typeof getAuth>;
+if (Platform.OS === 'web') {
+  _auth = getAuth(app);
+} else {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { getReactNativePersistence } = require('@firebase/auth/react-native');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+  _auth = initializeAuth(app, { persistence: getReactNativePersistence(AsyncStorage) });
+}
+export const auth = _auth;
+
 export const storage = getStorage(app);
 
 // Connect to emulators in development
