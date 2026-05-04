@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function role() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    match /tables/{id}     { allow read, write: if isSignedIn(); }
+    match /orders/{id}     { allow read, write: if isSignedIn(); }
+    match /menu_items/{id} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && role() == 'owner';
+    }
+    match /users/{uid} {
+      allow read: if isSignedIn();
+      allow write: if request.auth.uid == uid;
+    }
+  }
+}
