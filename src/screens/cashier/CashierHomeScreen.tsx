@@ -6,6 +6,7 @@ import ScreenWrapper from '../../components/common/ScreenWrapper';
 import LiveDot from '../../components/common/LiveDot';
 import { useRealtimeTables } from '../../hooks/useRealtimeTables';
 import { useAuthStore } from '../../store';
+import { signOut } from '../../services/auth.service';
 import { Colors, FontFamily, FontSize, Spacing, Radius, Shadows } from '../../theme';
 import { CashierStackParamList, Table } from '../../types';
 import { useRealtimeOrders } from '../../hooks/useRealtimeOrders';
@@ -41,7 +42,13 @@ function BusyTableRow({ table, nav }: { table: Table; nav: Nav }) {
 export default function CashierHomeScreen() {
   const nav = useNavigation<Nav>();
   const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
   const tables = useRealtimeTables();
+
+  async function handleLogout() {
+    await signOut();
+    logout();
+  }
   const activeTables = tables.filter((t) => t.status === 'busy' || t.status === 'paying');
 
   return (
@@ -51,9 +58,14 @@ export default function CashierHomeScreen() {
           <Text style={styles.headerSub}>แคชเชียร์</Text>
           <Text style={styles.headerName}>{user?.name ?? 'คุณ'}</Text>
         </View>
-        <View style={styles.liveBadge}>
-          <LiveDot color="emerald" />
-          <Text style={styles.liveText}>{activeTables.length} โต๊ะ</Text>
+        <View style={styles.headerRight}>
+          <View style={styles.liveBadge}>
+            <LiveDot color="emerald" />
+            <Text style={styles.liveText}>{activeTables.length} โต๊ะ</Text>
+          </View>
+          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+            <Text style={styles.logoutText}>🚪 ออก</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -82,8 +94,11 @@ const styles = StyleSheet.create({
   },
   headerSub: { fontFamily: FontFamily.thai, fontSize: FontSize.caption, color: Colors.ink3 },
   headerName: { fontFamily: FontFamily.thaiBold, fontSize: FontSize.h2, color: Colors.ink },
+  headerRight: { alignItems: 'flex-end', gap: 6 },
   liveBadge: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: Colors.emerald3, paddingHorizontal: 10, paddingVertical: 5, borderRadius: Radius.pill },
   liveText: { fontFamily: FontFamily.thaiSemiBold, fontSize: FontSize.caption, color: Colors.emerald2 },
+  logoutBtn: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.pill, borderWidth: 1, borderColor: Colors.paper3 },
+  logoutText: { fontFamily: FontFamily.thaiSemiBold, fontSize: FontSize.caption, color: Colors.ink3 },
   list: { padding: Spacing.screenPad },
   tableRow: {
     flexDirection: 'row', alignItems: 'center',

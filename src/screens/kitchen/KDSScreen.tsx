@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import OrderCard from '../../components/kitchen/OrderCard';
@@ -7,6 +7,7 @@ import Chip from '../../components/common/Chip';
 import LiveDot from '../../components/common/LiveDot';
 import { useKitchenQueue } from '../../hooks/useKitchenQueue';
 import { useAuthStore } from '../../store';
+import { signOut } from '../../services/auth.service';
 import { Colors, FontFamily, FontSize, Spacing } from '../../theme';
 import { Order, OrderStatus } from '../../types';
 
@@ -19,7 +20,13 @@ const FILTERS: { key: string; label: string }[] = [
 
 export default function KDSScreen() {
   const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
   const orders = useKitchenQueue();
+
+  async function handleLogout() {
+    await signOut();
+    logout();
+  }
   const [filter, setFilter] = useState('all');
   const prevIdsRef = useRef<Set<string>>(new Set());
 
@@ -47,6 +54,9 @@ export default function KDSScreen() {
             </View>
           </View>
         </View>
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <Text style={styles.logoutText}>🚪 ออก</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.filterRow}>
@@ -81,10 +91,13 @@ export default function KDSScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.kitchenBg },
   header: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingHorizontal: Spacing.screenPad, paddingTop: Spacing.md, paddingBottom: Spacing.sm,
     borderBottomWidth: 1, borderBottomColor: Colors.kitchenBorder,
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  logoutBtn: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: Colors.kitchenBorder },
+  logoutText: { fontFamily: FontFamily.thaiSemiBold, fontSize: FontSize.caption, color: Colors.kitchenTextMuted },
   roleIcon: { fontSize: 28 },
   name: { fontFamily: FontFamily.thaiBold, fontSize: FontSize.h2, color: Colors.kitchenText },
   liveRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 },

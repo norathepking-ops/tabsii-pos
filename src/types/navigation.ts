@@ -26,4 +26,5 @@ export type CashierStackParamList = {
 export type OwnerTabParamList = {
   MenuManagement: undefined;
   Dashboard: undefined;
+  Logout: undefined;
 };
