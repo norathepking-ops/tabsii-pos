@@ -24,8 +24,10 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png",
-      "publicPath": "/tabsii-pos"
+      "favicon": "./assets/favicon.png"
+    },
+    "experiments": {
+      "baseUrl": "/tabsii-pos"
     },
     "plugins": [
       "expo-font"
