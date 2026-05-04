@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import OrderCard from '../../components/kitchen/OrderCard';
-import Chip from '../../components/common/Chip';
 import LiveDot from '../../components/common/LiveDot';
 import { useKitchenQueue } from '../../hooks/useKitchenQueue';
 import { useAuthStore } from '../../store';
@@ -60,15 +59,21 @@ export default function KDSScreen() {
       </View>
 
       <View style={styles.filterRow}>
-        {FILTERS.map((f) => (
-          <Chip
-            key={f.key}
-            label={`${f.label}${countByStatus(f.key) > 0 ? ` (${countByStatus(f.key)})` : ''}`}
-            active={filter === f.key}
-            onPress={() => setFilter(f.key)}
-            dark
-          />
-        ))}
+        {FILTERS.map((f) => {
+          const count = countByStatus(f.key);
+          const isActive = filter === f.key;
+          return (
+            <TouchableOpacity
+              key={f.key}
+              onPress={() => setFilter(f.key)}
+              style={[styles.filterChip, isActive && styles.filterChipActive]}
+            >
+              <Text style={[styles.filterChipText, isActive && styles.filterChipTextActive]}>
+                {f.label}{count > 0 ? ` · ${count}` : ''}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       <FlashList
@@ -105,6 +110,21 @@ const styles = StyleSheet.create({
   filterRow: {
     flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs,
     paddingHorizontal: Spacing.screenPad, paddingVertical: Spacing.md,
+  },
+  filterChip: {
+    paddingHorizontal: 14, paddingVertical: 6,
+    borderRadius: 100,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  filterChipActive: {
+    backgroundColor: 'rgba(255,255,255,0.95)',
+  },
+  filterChipText: {
+    fontFamily: FontFamily.thaiSemiBold, fontSize: FontSize.caption,
+    color: 'rgba(255,255,255,0.85)',
+  },
+  filterChipTextActive: {
+    color: Colors.kitchenBg,
   },
   emptyWrap: { alignItems: 'center', paddingTop: 80 },
   emptyEmoji: { fontSize: 48, marginBottom: Spacing.md },

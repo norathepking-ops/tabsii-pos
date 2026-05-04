@@ -131,18 +131,24 @@ export default function CheckoutScreen() {
 
         <Text style={styles.sectionTitle}>เลือกวิธีชำระเงิน</Text>
         <View style={styles.payGrid}>
-          {PAY_METHODS.map((m) => (
-            <TouchableOpacity
-              key={m.key}
-              style={[styles.payCard, payMethod === m.key && styles.payCardActive]}
-              onPress={() => setPayMethod(m.key)}
-            >
-              <Text style={styles.payEmoji}>{m.emoji}</Text>
-              <Text style={[styles.payLabel, payMethod === m.key && styles.payLabelActive]}>
-                {m.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          {PAY_METHODS.map((m) => {
+            const isActive = payMethod === m.key;
+            return (
+              <TouchableOpacity
+                key={m.key}
+                style={[styles.payCard, isActive && styles.payCardActive]}
+                onPress={() => setPayMethod(m.key)}
+              >
+                <Text style={styles.payEmoji}>{m.emoji}</Text>
+                <Text style={[styles.payLabel, isActive && styles.payLabelActive]}>
+                  {m.label}
+                </Text>
+                <Text style={[styles.paySubLabel, isActive && styles.paySubLabelActive]}>
+                  {m.key === 'promptpay' ? 'PromptPay' : m.key === 'cash' ? 'Cash' : m.key === 'card' ? 'Card' : 'Transfer'}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </ScrollView>
 
@@ -219,13 +225,19 @@ const styles = StyleSheet.create({
   payGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   payCard: {
     width: '47%', padding: Spacing.md, borderRadius: Radius.card,
-    backgroundColor: Colors.white, borderWidth: 2, borderColor: Colors.paper3,
-    alignItems: 'center',
+    backgroundColor: Colors.white, borderWidth: 1.5, borderColor: Colors.paper3,
+    alignItems: 'flex-start',
   },
-  payCardActive: { borderColor: Colors.emerald, backgroundColor: Colors.emerald3 },
-  payEmoji: { fontSize: 28, marginBottom: 6 },
-  payLabel: { fontFamily: FontFamily.thaiSemiBold, fontSize: FontSize.bodySmall, color: Colors.ink3 },
-  payLabelActive: { color: Colors.emerald2 },
+  payCardActive: {
+    borderColor: Colors.emerald, backgroundColor: Colors.emerald,
+    shadowColor: Colors.emerald, shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3, shadowRadius: 12, elevation: 6,
+  },
+  payEmoji: { fontSize: 22, marginBottom: 6 },
+  payLabel: { fontFamily: FontFamily.thaiSemiBold, fontSize: FontSize.bodySmall, color: Colors.ink2 },
+  payLabelActive: { color: Colors.white },
+  paySubLabel: { fontFamily: FontFamily.latin, fontSize: 10, color: Colors.ink4, marginTop: 1 },
+  paySubLabelActive: { color: 'rgba(255,255,255,0.75)' },
   bottom: { paddingHorizontal: Spacing.screenPad, paddingVertical: Spacing.md, borderTopWidth: 1, borderTopColor: Colors.paper3 },
   confirmBtn: {
     height: 54, borderRadius: Radius.button,

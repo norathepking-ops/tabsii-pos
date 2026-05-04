@@ -24,12 +24,12 @@ export default function CartItemRow({ item, index, onInc, onDec, onNoteChange }:
 
   return (
     <View style={styles.row}>
-      <FoodTile emoji={(item.menuItem as any).emoji ?? '🍜'} index={index} size={44} />
+      <FoodTile emoji={item.menuItem.emoji ?? '🍜'} index={index} size={44} />
       <View style={styles.info}>
         <Text style={styles.name}>{item.menuItem.nameTh}</Text>
         <Text style={styles.unitPrice}>฿{item.menuItem.price} × {item.qty} = ฿{lineTotal}</Text>
         {item.note ? (
-          <Text style={styles.note}>📝 {item.note}</Text>
+          <Text style={styles.note}>"{item.note}"</Text>
         ) : (
           <TouchableOpacity onPress={() => setNoteModal(true)}>
             <Text style={styles.addNote}>+ หมายเหตุ</Text>

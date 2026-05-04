@@ -27,6 +27,7 @@ export type ItemStatus = 'pending' | 'cooking' | 'ready' | 'served';
 
 export interface OrderItem {
   menuItemId: string;
+  nameTh?: string;
   qty: number;
   price: number;
   note?: string;
@@ -59,6 +60,7 @@ export interface MenuItem {
   category: string;
   price: number;
   thumbnail?: string;
+  emoji?: string;
   active: boolean;
   stock: StockLevel;
   isHot?: boolean;

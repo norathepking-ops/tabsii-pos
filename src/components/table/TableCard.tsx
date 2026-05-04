@@ -18,17 +18,18 @@ function getMinutesOpen(table: Table): number {
 export default function TableCard({ table, onPress }: Props) {
   const minutes = getMinutesOpen(table);
   const isAlert = table.status === 'busy' && minutes > 30;
+  const isBusy = table.status === 'busy' || table.status === 'paying';
 
-  const ring = useSharedValue(1);
+  const scale = useSharedValue(1);
   useEffect(() => {
     if (isAlert) {
-      ring.value = withRepeat(
-        withSequence(withTiming(1.08, { duration: 900 }), withTiming(1, { duration: 900 })),
+      scale.value = withRepeat(
+        withSequence(withTiming(1.06, { duration: 900 }), withTiming(1, { duration: 900 })),
         -1
       );
     }
   }, [isAlert]);
-  const ringStyle = useAnimatedStyle(() => ({ transform: [{ scale: ring.value }] }));
+  const scaleStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   const cardStyle = [
     styles.card,
@@ -37,27 +38,39 @@ export default function TableCard({ table, onPress }: Props) {
     table.status === 'reserved' && styles.cardReserved,
   ];
 
+  const numColor = isBusy || table.status === 'reserved' ? Colors.white : Colors.ink2;
+  const subColor = isBusy ? 'rgba(255,255,255,0.85)' : Colors.ink4;
+
   return (
-    <Animated.View style={[isAlert && ringStyle]}>
+    <Animated.View style={[isAlert && scaleStyle]}>
       <TouchableOpacity style={cardStyle} onPress={onPress} activeOpacity={0.8}>
-        <Text style={[styles.num, table.status !== 'free' && styles.numLight]}>
-          {table.number}
-        </Text>
-        {table.status === 'free' && (
-          <Text style={styles.seats}>{table.seats} ที่นั่ง</Text>
-        )}
-        {table.status === 'busy' && (
-          <Text style={styles.sub}>{minutes > 0 ? `${minutes} นาที` : 'เพิ่งเปิด'}</Text>
-        )}
-        {table.status === 'paying' && (
-          <Text style={styles.sub}>รอชำระ</Text>
-        )}
-        {table.status === 'reserved' && (
-          <Text style={styles.sub} numberOfLines={1}>{table.reservedFor ?? 'จอง'}</Text>
-        )}
-        {isAlert && (
-          <View style={styles.alertDot} />
-        )}
+        {/* Top row: number + optional alert badge */}
+        <View style={styles.topRow}>
+          <Text style={[styles.num, { color: numColor }]}>{table.number}</Text>
+          {isAlert && <View style={styles.alertBadge}><Text style={styles.alertText}>!</Text></View>}
+        </View>
+
+        {/* Bottom info */}
+        <View style={styles.bottomRow}>
+          {table.status === 'free' && (
+            <Text style={[styles.sub, { color: Colors.ink4, opacity: 0.8 }]}>{table.seats} ที่นั่ง</Text>
+          )}
+          {table.status === 'reserved' && (
+            <Text style={[styles.sub, { color: Colors.gold }]} numberOfLines={1}>
+              {table.reservedFor ?? 'จอง'}
+            </Text>
+          )}
+          {table.status === 'busy' && (
+            <>
+              <Text style={[styles.sub, { color: subColor }]}>
+                {minutes > 0 ? `${minutes} น.` : 'เพิ่งเปิด'}
+              </Text>
+            </>
+          )}
+          {table.status === 'paying' && (
+            <Text style={[styles.sub, { color: 'rgba(255,255,255,0.9)' }]}>รอชำระ</Text>
+          )}
+        </View>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -65,23 +78,24 @@ export default function TableCard({ table, onPress }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    margin: Spacing.xs, padding: Spacing.sm, borderRadius: Radius.card,
-    backgroundColor: Colors.paper2, borderWidth: 1.5, borderColor: Colors.paper3,
-    aspectRatio: 1, justifyContent: 'center', alignItems: 'center',
+    margin: Spacing.xs, padding: 8, borderRadius: 12,
+    backgroundColor: Colors.paper2,
+    aspectRatio: 1,
+    flexDirection: 'column', justifyContent: 'space-between',
   },
-  cardBusy: { backgroundColor: Colors.emerald, borderColor: Colors.emerald2 },
-  cardPaying: { backgroundColor: Colors.orange, borderColor: Colors.orange },
+  cardBusy: { backgroundColor: Colors.emerald },
+  cardPaying: { backgroundColor: Colors.orange },
   cardReserved: {
-    backgroundColor: 'transparent', borderColor: Colors.gold,
-    borderStyle: 'dashed', borderWidth: 2,
+    backgroundColor: Colors.gold + '15',
+    borderWidth: 1.5, borderColor: Colors.gold, borderStyle: 'dashed',
   },
-  num: { fontFamily: FontFamily.thaiBold, fontSize: FontSize.h2, color: Colors.ink3 },
-  numLight: { color: Colors.white },
-  seats: { fontFamily: FontFamily.thai, fontSize: FontSize.micro, color: Colors.ink4, marginTop: 2 },
-  sub: { fontFamily: FontFamily.thai, fontSize: FontSize.micro, color: 'rgba(255,255,255,0.85)', marginTop: 2 },
-  alertDot: {
-    position: 'absolute', top: 6, right: 6,
-    width: 8, height: 8, borderRadius: 4,
-    backgroundColor: Colors.orange,
+  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  num: { fontFamily: FontFamily.thaiBold, fontSize: 22, lineHeight: 26 },
+  alertBadge: {
+    backgroundColor: Colors.orange, borderRadius: 6,
+    paddingHorizontal: 5, paddingVertical: 1,
   },
+  alertText: { fontFamily: FontFamily.thaiBold, fontSize: 9, color: Colors.white },
+  bottomRow: {},
+  sub: { fontFamily: FontFamily.thai, fontSize: 9, lineHeight: 13 },
 });

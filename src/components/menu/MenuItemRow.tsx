@@ -18,7 +18,7 @@ export default function MenuItemRow({ item, index, qty, onAdd, onInc, onDec }: P
 
   return (
     <View style={[styles.row, disabled && styles.rowDisabled]}>
-      <FoodTile emoji={(item as any).emoji ?? '🍜'} index={index} size={52} />
+      <FoodTile emoji={item.emoji ?? '🍜'} index={index} size={52} />
       <View style={styles.info}>
         <View style={styles.nameRow}>
           <Text style={styles.nameTh}>{item.nameTh}</Text>

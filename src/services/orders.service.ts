@@ -30,6 +30,7 @@ export async function submitOrder(
   const { subtotal, serviceCharge, total } = calcTotals(cartItems);
   const items: OrderItem[] = cartItems.map((ci) => ({
     menuItemId: ci.menuItem.id,
+    nameTh: ci.menuItem.nameTh,
     qty: ci.qty,
     price: ci.menuItem.price,
     note: ci.note,
